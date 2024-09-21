@@ -7,7 +7,6 @@ use Firebase\JWT\Key;
 
 function getJWTFromRequest($authenticationHeader): string
 {
-    // return print('<pre>' . print_r($authenticationHeader, true) . '</pre>');
     if (is_null($authenticationHeader)) {
         throw new Exception('Missing or invalid JWT in request');
     }
