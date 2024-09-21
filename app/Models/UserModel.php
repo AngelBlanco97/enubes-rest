@@ -36,12 +36,17 @@ class UserModel extends Model
         return $data;
     }
 
-    public function findByEmail($email)
+    public function findUserByEmailAddress(string $emailAddress)
     {
-        return $this->where('email', $email)->first();
+        $user = $this->asArray()->where(['email' => $emailAddress])->first();
+
+        if (!$user) {
+            throw new Exception('User does not exist for specified email address');
+        }
+        return $user;
     }
 
-    public function authenticate($email, $password)
+    public function authenticate(string $email, string $password)
     {
         $user = $this->findByEmail($email);
         if (!$user) {

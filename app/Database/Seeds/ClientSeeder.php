@@ -22,7 +22,7 @@ class ClientSeeder extends Seeder
             'last_name' => 'Blanco',
             'email' => 'prueba@enubes.com',
             'phone' => $faker->phoneNumber,
-            'password' => password_hash('Test123', PASSWORD_DEFAULT),
+            'password' => '$2y$10$sdz5IXAATgET8m34oYljVO4pLQ6IXi6L/hgaKPfq/GITNoq7x1Mae',
         ];
     }
 }
