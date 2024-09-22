@@ -36,6 +36,7 @@ $routes->get('/', 'Home::index');
 $routes->get('api', 'Home::index');
 $routes->post('login', 'AuthController::login');
 $routes->post('register', 'AuthController::register');
+$routes->get('me', 'AuthController::me', ['filter' => 'auth']);
 /*
  * --------------------------------------------------------------------
  * Additional Routing

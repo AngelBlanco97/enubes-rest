@@ -5,6 +5,9 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\UserModel;
 use CodeIgniter\HTTP\ResponseInterface;
+use Config\Services;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class AuthController extends BaseController
 {
@@ -53,6 +56,26 @@ class AuthController extends BaseController
 
         return $this->getJWTForUser($input['email']);
     }
+
+
+    public function me()
+    {
+        try {
+            $authenticationHeader = $this->request->getHeaderLine('Authorization');
+            $user = getActiveUser($authenticationHeader);
+
+            if (!$user) {
+                return $this->response->setStatusCode(404)->setJSON(['error' => 'Usuario no encontrado']);
+            }
+
+            return $this->response->setStatusCode(200)->setJSON([
+                'user' => $user
+            ]);
+        } catch (Exception $e) {
+            return $this->response->setStatusCode(401)->setJSON(['error' => 'Token inválido o expirado']);
+        }
+    }
+
 
     private function getJWTForUser(string $email, int $responseCode = ResponseInterface::HTTP_OK)
     {

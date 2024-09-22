@@ -8,7 +8,15 @@ class UserModel extends Model
 {
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['name', 'last_name', 'email', 'phone', 'password', 'remember_password', 'created_at', 'updated_at'];
+    protected $allowedFields = [
+        'name',
+        'last_name',
+        'email',
+        'phone',
+        'created_at',
+        'updated_at'
+    ];
+    protected $afterFind = ['removePassword'];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
@@ -25,6 +33,23 @@ class UserModel extends Model
     protected function beforeUpdate(array $data)
     {
         $data = $this->passwordHash($data);
+        return $data;
+    }
+
+    protected function removePassword(array $data)
+    {
+        if (isset($data['data'])) {
+            if (isset($data['data']['password'])) {
+                unset($data['data']['password']);
+            } elseif (is_array($data['data'])) {
+                foreach ($data['data'] as &$user) {
+                    if (isset($user['password'])) {
+                        unset($user['password']);
+                    }
+                }
+            }
+        }
+
         return $data;
     }
 

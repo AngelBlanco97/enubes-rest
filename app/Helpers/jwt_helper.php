@@ -36,3 +36,16 @@ function getSignedJWTForUser(string $email): string
     $jwt = JWT::encode($payload, Services::getSecretKey(), 'HS256');
     return $jwt;
 }
+
+function getActiveUser(string $encodedToken)
+{
+    $token = getJWTFromRequest($encodedToken);
+
+    $key = Services::getSecretKey();
+    $decodedToken = JWT::decode($token, new Key($key, 'HS256'));
+
+    $userModel = new UserModel();
+    $user = $userModel->findUserByEmailAddress($decodedToken->email);
+
+    return $user;
+}
