@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Filters\CorsFilter;
 use App\Filters\JWTAuthFilter;
 use CodeIgniter\Config\Filters as BaseFilters;
 use CodeIgniter\Filters\Cors;
@@ -36,6 +37,7 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'auth'          => JWTAuthFilter::class,
+        'cors' => CorsFilter::class,
     ];
 
     /**
@@ -71,6 +73,7 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
+            'cors',
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
