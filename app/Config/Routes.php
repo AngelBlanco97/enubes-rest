@@ -32,7 +32,7 @@ $routes->setAutoRoute(true);
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
 
-$routes->group('auth', static function ($routes): void {
+$routes->group('auth', ['filter' => 'cors'], static function ($routes): void {
     $routes->post('login', 'AuthController::login');
     $routes->post('register', 'AuthController::register');
     $routes->get('me', 'AuthController::me', ['filter' => 'auth']);
