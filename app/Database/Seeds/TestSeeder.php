@@ -12,5 +12,6 @@ class TestSeeder extends Seeder
         $this->call('BedroomsType');
         $this->call('BedroomsSeeder');
         $this->call('BedroomPrices');
+        $this->call('BedroomImages');
     }
 }

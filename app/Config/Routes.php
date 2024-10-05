@@ -38,6 +38,11 @@ $routes->group('auth', ['filter' => 'cors'], static function ($routes): void {
     $routes->get('me', 'AuthController::me', ['filter' => 'auth']);
 });
 
+$routes->group('habs', ['filter' => 'cors'], static function ($routes): void {
+    $routes->post('', 'RoomsController::getRoomsByFilters');
+    $routes->get('categories', 'RoomTypesController::getBedTypes');
+});
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing

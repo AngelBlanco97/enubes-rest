@@ -19,42 +19,64 @@ class BedroomModel extends Model
     public function getBedroomsFiltered($filters)
     {
         $query = $this->db->table('bedrooms')
-            ->select('bedrooms.id, bedrooms.name, bedrooms.description, bedrooms_type.name as type')
+            ->select('bedrooms.id, bedrooms.name, bedrooms.description, bedrooms_type.name as type, bedroom_prices.price_per_day as price, GROUP_CONCAT(bedroom_images.url) as images, count(*) as total_count')
             ->join('bedrooms_type', 'bedrooms_type.id = bedrooms.bedrooms_type_id')
             ->join('bedroom_prices', 'bedroom_prices.bedroom_id = bedrooms.id')
-            ->join('bedrooms_reservations', 'bookings.bedroom_id = bedrooms.id')
-            ->join('bedrooms_images', 'bedrooms_images.bedroom_id = bedrooms.id');
+            ->join('bedroom_images', 'bedroom_images.bedroom_id = bedrooms.id', 'left')
+            ->groupBy('bedrooms.id');
 
-        if (isset($filters['type'])) {
+        if (!empty($filters['type'])) {
             $query->where('bedrooms.bedrooms_type_id', $filters['type']);
         }
 
-        if (isset($filters['price_min']) && isset($filters['price_max'])) {
-            $query->where('bedrooms.id IN (SELECT bedroom_id FROM bedroom_prices WHERE price_per_day BETWEEN ' . $filters['price_min'] . ' AND ' . $filters['price_max'] . ')');
+        if (!empty($filters['price_min']) || !empty($filters['price_max'])) {
+            if (!empty($filters['price_min'])) {
+                $query->where('bedroom_prices.price_per_day >=', $filters['price_min']);
+            }
+            if (!empty($filters['price_max'])) {
+                $query->where('bedroom_prices.price_per_day <=', $filters['price_max']);
+            }
         }
 
-        if (isset($filters['price_min']) && !isset($filters['price_max'])) {
-            $query->where('bedrooms.id IN (SELECT bedroom_id FROM bedroom_prices WHERE price_per_day >= ' . $filters['price_min'] . ')');
+        if (!empty($filters['since_date']) && !empty($filters['until_date'])) {
+            $query->where('bedrooms.id NOT IN (SELECT bedroom_id FROM bedrooms_reservations WHERE (since_date BETWEEN "' . $filters['since_date'] . '" AND "' . $filters['until_date'] . '") OR (until_date BETWEEN "' . $filters['since_date'] . '" AND "' . $filters['until_date'] . '"))', null, false);
+        } elseif (!empty($filters['since_date'])) {
+            $query->where('bedrooms.id NOT IN (SELECT bedroom_id FROM bedrooms_reservations WHERE since_date >= "' . $filters['since_date'] . '")', null, false);
+        } elseif (!empty($filters['until_date'])) {
+            $query->where('bedrooms.id NOT IN (SELECT bedroom_id FROM bedrooms_reservations WHERE until_date <= "' . $filters['until_date'] . '")', null, false);
         }
 
-        if (isset($filters['price_max']) && !isset($filters['price_min'])) {
-            $query->where('bedrooms.id IN (SELECT bedroom_id FROM bedroom_prices WHERE price_per_day <= ' . $filters['price_max'] . ')');
+        if (!empty($filters['page']) && !empty($filters['limit'])) {
+            $query->limit($filters['limit'], ($filters['page'] - 1) * $filters['limit']);
+        } elseif (!empty($filters['limit'])) {
+            $query->limit($filters['limit']);
         }
 
-        if (isset($filters['since_date']) && isset($filters['until_date'])) {
-            $query->where('bedrooms.id NOT IN (SELECT bedroom_id FROM bedrooms_reservations WHERE (since_date BETWEEN "' . $filters['since_date'] . '" AND "' . $filters['until_date'] . '") OR (until_date BETWEEN "' . $filters['since_date'] . '" AND "' . $filters['until_date'] . '"))');
+        $result = $query->get()->getResultArray();
+
+        foreach ($result as &$room) {
+            $room['images'] = !empty($room['images']) ? explode(',', $room['images']) : [];
         }
 
-        if (isset($filters['since_date']) && !isset($filters['until_date'])) {
-            $query->where('bedrooms.id NOT IN (SELECT bedroom_id FROM bookings WHERE since_date >= "' . $filters['since_date'] . '")');
-        }
+        $totalPages = ceil($query->countAllResults() / $filters['limit']);
+        $totalResults = $query->countAllResults();
 
-        if (isset($filters['until_date']) && !isset($filters['since_date'])) {
-            $query->where('bedrooms.id NOT IN (SELECT bedroom_id FROM bookings WHERE until_date <= "' . $filters['until_date'] . '")');
-        }
-
-        return $query->get()->getResultArray();
+        return [
+            'data' => $result,
+            'pagination' => [
+                'page' => $filters['page'],
+                'limit' => $filters['limit'],
+                'total' => $totalResults,
+                'total_pages' => $totalPages
+            ]
+        ];
     }
+
+
+
+
+
+
 
     public function getBedroom($id)
     {
