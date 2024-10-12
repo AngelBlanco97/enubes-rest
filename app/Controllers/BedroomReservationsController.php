@@ -15,6 +15,19 @@ class BedroomReservationsController extends BaseController
         $this->bedroomReservations = new BedroomReservationsModel();
     }
 
+    public function getReservationInfo($id)
+    {
+        try {
+            $response = $this->bedroomReservations->getReservationInfo($id);
+
+            return $this->getResponse($response, ResponseInterface::HTTP_OK);
+        } catch (\Throwable $th) {
+            return $this->getResponse([
+                'error' => $th->getMessage()
+            ], ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function reserveRoom($id)
     {
         try {

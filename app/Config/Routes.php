@@ -45,6 +45,10 @@ $routes->group('habs', ['filter' => 'cors'], static function ($routes): void {
     $routes->post('(:num)/reserve', 'BedroomReservationsController::reserveRoom/$1', ['filter' => 'auth']);
 });
 
+$routes->group('reservations', ['filter' => 'cors'], static function ($routes): void {
+    $routes->get('(:num)', 'BedroomReservationsController::getReservationInfo/$1', ['filter' => 'auth']);
+});
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
