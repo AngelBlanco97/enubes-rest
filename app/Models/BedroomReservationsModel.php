@@ -47,7 +47,22 @@ class BedroomReservationsModel extends Model
 
     public function getReservationInfo($id)
     {
-        return $this->select('bedrooms_reservations.id, bedrooms_reservations.check_in, bedrooms_reservations.check_out, bedrooms_reservations.created_at, bedrooms_reservations.updated_at, bedrooms.id as bedroom_id, bedrooms.name as bedroom_name, users.id as user_id, users.name as user_name')
+        return $this->select('
+            bedrooms_reservations.id AS reservation_id,
+            bedrooms_reservations.check_in,
+            bedrooms_reservations.check_out,
+            bedrooms_reservations.total,
+            bedrooms_reservations.created_at,
+            bedrooms_reservations.updated_at,
+            bedrooms.id AS bedroom_id,
+            bedrooms.name AS bedroom_name,
+            bedrooms.description AS bedroom_description,
+            users.id AS user_id,
+            users.name AS user_name,
+            users.email AS user_email,
+            users.phone AS user_phone,
+            bedrooms.*
+        ')
             ->join('bedrooms', 'bedrooms.id = bedrooms_reservations.bedroom_id')
             ->join('users', 'users.id = bedrooms_reservations.user_id')
             ->where('bedrooms_reservations.id', $id)
