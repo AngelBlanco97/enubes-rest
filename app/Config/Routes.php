@@ -41,6 +41,8 @@ $routes->group('auth', ['filter' => 'cors'], static function ($routes): void {
 $routes->group('habs', ['filter' => 'cors'], static function ($routes): void {
     $routes->post('', 'RoomsController::getRoomsByFilters');
     $routes->get('categories', 'RoomTypesController::getBedTypes');
+    $routes->get('(:num)', 'RoomsController::getRoomInfo/$1');
+    $routes->post('(:num)/reserve', 'BedroomReservationsController::reserveRoom/$1', ['filter' => 'auth']);
 });
 
 /*

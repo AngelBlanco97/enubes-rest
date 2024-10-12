@@ -52,4 +52,16 @@ class RoomsController extends BaseController
             ], ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function getRoomInfo($id)
+    {
+        try {
+            $response = $this->bedroomModel->getBedroomById($id);
+            return $this->getResponse($response, ResponseInterface::HTTP_OK);
+        } catch (\Throwable $th) {
+            return $this->getResponse([
+                'error' => $th->getMessage()
+            ], ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

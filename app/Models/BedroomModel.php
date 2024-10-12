@@ -57,7 +57,6 @@ class BedroomModel extends Model
         foreach ($result as &$room) {
             $room['images'] = !empty($room['images']) ? explode(',', $room['images']) : [];
         }
-
         $totalPages = ceil($query->countAllResults() / $filters['limit']);
         $totalResults = $query->countAllResults();
 
@@ -72,21 +71,16 @@ class BedroomModel extends Model
         ];
     }
 
-
-
-
-
-
-
-    public function getBedroom($id)
+    public function getBedroomById($id)
     {
         return $this->db->table('bedrooms')
-            ->select('bedrooms.id, bedrooms.name, bedrooms.description, bedrooms_type.name as type')
+            ->select('bedrooms.id, bedrooms.*, bedrooms_type.name as type, bedroom_prices.price_per_day as price, GROUP_CONCAT(DISTINCT bedroom_images.url) as images, GROUP_CONCAT(DISTINCT bedrooms_reservations.check_in, "-", bedrooms_reservations.check_out) as reservation_dates')
             ->join('bedrooms_type', 'bedrooms_type.id = bedrooms.bedrooms_type_id')
             ->join('bedroom_prices', 'bedroom_prices.bedroom_id = bedrooms.id')
-            ->join('bedrooms_reservations', 'bookings.bedroom_id = bedrooms.id')
-            ->join('bedrooms_images', 'bedrooms_images.bedroom_id = bedrooms.id')
+            ->join('bedroom_images', 'bedroom_images.bedroom_id = bedrooms.id', 'left')
+            ->join('bedrooms_reservations', 'bedrooms_reservations.bedroom_id = bedrooms.id', 'left')
             ->where('bedrooms.id', $id)
+            ->groupBy('bedrooms.id')
             ->get()
             ->getRowArray();
     }
